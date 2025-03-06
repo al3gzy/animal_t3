@@ -1,6 +1,6 @@
-# Animal Tic-Tac-Toe with Polyomino Shapes
+# Animal Tic-Tac-Toe
 
-## Overview
+## 📌 Overview
 
 This project introduces a variation of the classic **Tic-Tac-Toe** game, called **Animal Tic-Tac-Toe**, where players aim to match a custom **animal shape** (polyomino) on the board. The game uses the **Dancing Links** algorithm to detect winning configurations, where players place their marks (1 or -1) and attempt to form the given animal shape on the board. The shape can be customized by the user, adding a dynamic element to the game, and the game terminates when a player successfully matches the shape or the board is full.
 
