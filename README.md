@@ -34,5 +34,3 @@ The **Dancing Links** algorithm is used to efficiently solve the problem of dete
 - **Dancing Links for Solution Detection**: The **Dancing Links** algorithm is used to detect whether the player has successfully created the animal shape.
 - **Interactive Play**: Players input their moves by specifying the row and column on the board. The game ensures that players only place marks on empty cells.
 - **Game Over Detection**: The game automatically detects a winner or tie based on the player actions and the polyomino formation.
-  
-This version of **Animal Tic-Tac-Toe** adds an interesting twist to the classic game, providing a unique challenge that requires players to form complex patterns rather than just simple lines.
