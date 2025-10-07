@@ -8,9 +8,9 @@ The game is played on an `n × n` grid by two players who alternate turns, marki
 
 ### Core Components
 
-- **`AnimalTicTacToe` class** — Manages all game logic, including board creation, turn handling, and winner detection.  
+- **`AnimalTicTacToe` class** — Manages all game logic, including board creation, turn handling and winner detection.  
 - **NumPy arrays** — Used to represent both the board (`self.board`) and the polyomino shape (`self.animal_shape`).  
-- **Gameplay flow** — Players define the target shape, take turns placing their marks, and after each move, the game checks whether the target pattern appears in any rotation or reflection.
+- **Gameplay flow** — Players define the target shape, take turns placing their marks and after each move, the game checks whether the target pattern appears in any rotation or reflection.
 
 ---
 
@@ -35,7 +35,7 @@ If any transformation of the polyomino matches the player’s marks on the board
 ### 4. Game Loop and Turn Handling  
 Within `play_game()`:
 - The player defines the board size and the coordinates of the polyomino’s cells.  
-- The board is initialized, and players alternate turns, placing marks in empty cells.  
+- The board is initialized and players alternate turns, placing marks in empty cells.  
 - After every move, the algorithm checks for a win or a tie.  
 - The game ends as soon as a winner is found or the board is completely filled.
 
