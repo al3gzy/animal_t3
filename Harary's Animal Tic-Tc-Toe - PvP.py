@@ -1,4 +1,14 @@
 import numpy as np
+import multiprocessing as mp
+
+def worker_snaky(move, board, shape, max_ply, radius):
+    r,c = move
+    local_board = board.copy()
+    local_board[r,c] = 1
+    memo = {}
+    ok = can_force_win(local_board, shape, target_player=1,
+                       current_player=-1, ply=1, max_ply=max_ply, memo=memo, radius=radius)
+    return (move, ok)
 
 class AnimalTicTacToe:
     def __init__(self):
@@ -16,21 +26,42 @@ class AnimalTicTacToe:
             print(' | '.join(map(str, row)))
             print('-' * (4 * len(row) - 1))
 
+    def generate_transformations(self, shape):
+        import numpy as np
+        transformations = []
+        for k in range(4):
+            rotated = np.rot90(shape, k)
+            transformations.append(rotated)
+            transformations.append(np.fliplr(rotated))
+        unique = []
+        for t in transformations:
+            t_tuple = tuple(map(tuple, t))
+            if t_tuple not in unique:
+                unique.append(t_tuple)
+        return [np.array(u) for u in unique]
+
+    def check_shape_on_board(self, board, shape, player_mark):
+        rows, cols = board.shape
+        s_rows, s_cols = shape.shape
+        for i in range(rows - s_rows + 1):
+            for j in range(cols - s_cols + 1):
+                match = True
+                for r in range(s_rows):
+                    for c in range(s_cols):
+                        if shape[r, c] == 1 and board[i+r, j+c] != player_mark:
+                            match = False
+                            break
+                    if not match:
+                        break
+                if match:
+                    return True
+        return False
+
     def check_winner(self, board, animal_shape, player_mark):
-        dlx = DancingLinks()
-        def convert(board, animal_shape, player_mark):
-            rows, cols = len(board), len(board[0])
-            animal_shape_rows, animal_shape_cols = len(animal_shape), len(animal_shape[0])
-            matrix = np.zeros([rows, cols])
-            for i in range(rows):
-                for j in range(cols):
-                    if board[i, j] == player_mark:
-                        matrix[i, j] = 1
-            return matrix
-        combined = convert(board, animal_shape, player_mark)
-        dlx.create_grid(combined)
-        solutions = dlx.solve(combined)
-        return len(solutions) > 0
+        for transformed_shape in self.generate_transformations(animal_shape):
+            if self.check_shape_on_board(board, transformed_shape, player_mark):
+                return True
+        return False
     
     def play_game(self):
         board_size = int(input("Board size: "))
@@ -77,118 +108,5 @@ class AnimalTicTacToe:
                 print("It's a tie!")
                 break
 
-class DancingLinks:
-    def __init__(self):
-        self.header = None
-        self.solution = []
-
-    class Node:
-        def __init__(self, col_name=None):
-            self.left = self
-            self.right = self
-            self.up = self
-            self.down = self
-            self.col = None
-            self.row = None
-            self.col_name = col_name
-
-    def create_grid(self, matrix):
-        self.header = self.Node()
-        columns = {}
-
-        for j, col_name in enumerate(matrix[0]):
-            new_node = self.Node(col_name)
-            new_node.right = self.header
-            new_node.left = self.header.left
-            self.header.left.right = new_node
-            self.header.left = new_node
-            columns[col_name] = new_node
-
-        for i in range(1, len(matrix)):
-            prev = None
-            for j, val in enumerate(matrix[i]):
-                if val == 1:
-                    col_name = matrix[0][j]
-                    new_node = self.Node(col_name)
-                    new_node.col = columns[col_name]
-                    new_node.up = columns[col_name].up
-                    new_node.down = columns[col_name]
-                    columns[col_name].up.down = new_node
-                    columns[col_name].up = new_node
-                    if prev is None:
-                        prev = new_node
-                    else:
-                        new_node.left = prev
-                        new_node.right = prev.right
-                        prev.right.left = new_node
-                        prev.right = new_node
-                        prev = new_node
-
-    def cover(self, column):
-        column.right.left = column.left
-        column.left.right = column.right
-        node = column.down
-        while node != column:
-            cur = node.right
-            while cur != node:
-                cur.down.up = cur.up
-                cur.up.down = cur.down
-                cur = cur.right
-            node = node.down
-
-    def uncover(self, column):
-        node = column.up
-        while node != column:
-            cur = node.left
-            while cur != node:
-                cur.down.up = cur
-                cur.up.down = cur
-                cur = cur.left
-            node = node.up
-        column.right.left = column
-        column.left.right = column
-
-    def search(self, k=0):
-        if self.header.right == self.header:
-            return True
-        column = self.header.right
-        self.cover(column)
-        node = column.down
-        while node != column:
-            self.solution.append(node)
-            cur = node.right
-            while cur != node:
-                self.cover(cur.col)
-                cur = cur.right
-            if self.search(k + 1):
-                return True
-            node = self.solution.pop()
-            column = node.col
-            cur = node.left
-            while cur != node:
-                self.uncover(cur.col)
-                cur = cur.left
-            node = node.down
-        self.uncover(column)
-        return False
-
-    def solve(self, matrix):
-        self.create_grid(matrix)
-        self.solution = []
-        self.search()
-        
-        solutions = []
-        for solution in self.solution:
-            columns = []
-            node = solution
-            while True:
-                columns.append(node.col_name)
-                node = node.right
-                if node == solution:
-                    break
-            solutions.append(columns)
-        
-        return solutions
-
-game = AnimalTicTacToe()
-game.play_game()
+#game = AnimalTicTacToe()
+#game.play_game()
